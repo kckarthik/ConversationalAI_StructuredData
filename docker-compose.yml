@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  analytics:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: analytics-agent
+    ports:
+      - "5000:5000"
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - MODEL=qwen2.5:0.5b
+      - MAX_UPLOAD_MB=500
+      - DB_PATH=/app/data/analytics.db
+      - UPLOAD_DIR=/app/uploads
+      - CHARTS_DIR=/app/static/charts
+    volumes:
+      - analytics-data:/app/data
+      - analytics-uploads:/app/uploads
+      - analytics-charts:/app/static/charts
+    
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  analytics-data:
+  analytics-uploads:
+  analytics-charts:
